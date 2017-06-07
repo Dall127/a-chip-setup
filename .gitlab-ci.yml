@@ -1,0 +1,58 @@
+image: debian:jessie
+
+flash:
+  when: manual
+  script:
+    - rm /etc/apt/apt.conf.d/docker-clean
+    - apt-get update
+    - apt-get install -y --no-install-recommends make wget u-boot-tools
+    - make WGET_OPTS='--progress=dot:giga' flash.tar.gz
+  artifacts:
+    paths:
+      - flash.tar.gz
+
+rootfs:
+  when: manual
+  script:
+    - rm /etc/apt/apt.conf.d/docker-clean
+    - rm /etc/apt/apt.conf.d/docker-gzip-indexes
+    - apt-get update
+    - apt-get install -y --no-install-recommends make git ca-certificates gcc libc-dev fakeroot multistrap mtd-utils android-tools-fsutils
+    - make WGET_OPTS='--progress=dot:giga' rootfs.ubi.sparse
+  artifacts:
+    paths:
+      - rootfs.ubi.sparse
+
+modules:
+  when: manual
+  image: debian:stretch
+  script:
+    - rm /etc/apt/apt.conf.d/docker-clean
+    - apt-get update
+    - apt-get install -y --no-install-recommends make ca-certificates wget gcc libc-dev gcc-arm-linux-gnueabihf bc
+    - make WGET_OPTS='--progress=dot:giga' modules.tar.gz
+  artifacts:
+    paths:
+      - modules.tar.gz
+
+rescue:
+  when: manual
+  script:
+    - rm /etc/apt/apt.conf.d/docker-clean
+    - apt-get update
+    - apt-get install -y --no-install-recommends make wget cpio u-boot-tools
+    - make WGET_OPTS='--progress=dot:giga' rescue.tar.gz
+  artifacts:
+    paths:
+      - rescue.tar.gz
+
+repack:
+  when: manual
+  script:
+    - rm /etc/apt/apt.conf.d/docker-clean
+    - apt-get update
+    - apt-get install -y --no-install-recommends make git ca-certificates wget android-tools-fsutils python3 python python-lzo squashfs-tools
+    - make WGET_OPTS='--progress=dot:giga' prebuilt/server.squashfs
+  artifacts:
+    paths:
+      - prebuilt/server.squashfs
