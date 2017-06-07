@@ -4,5 +4,6 @@ export PATH
 mount -t devtmpfs udev /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
-mount -t ubifs /dev/ubi0_0 /mnt || true
+mount -t ubifs       /dev/ubi0_0 /mnt ||        # try rw first
+mount -t ubifs -o ro /dev/ubi0_0 /mnt || true   # maybe ro will work
 exec init
